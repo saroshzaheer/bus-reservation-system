@@ -1,0 +1,26 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+build/
+dist/
+*.egg-info/
+
+# Node modules should not be included if any
+node_modules/
+
+# OS files
+.DS_Store
+
+# Compiled C++ binary
+output/main.exe
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
