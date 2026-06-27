@@ -1,0 +1,2 @@
+1|islamabad|1
+2|karachi|1
