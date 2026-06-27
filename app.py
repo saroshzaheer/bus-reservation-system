@@ -30,6 +30,22 @@ DATA_DIR = BASE_DIR / "output"
 DATA_DIR.mkdir(exist_ok=True)
 MAX_RETRIES = 3
 CPP_BIN = BASE_DIR / "output/main.exe"
+
+
+def ensure_backend_binary() -> None:
+    """Compile the C++ backend if the binary is missing."""
+    if CPP_BIN.exists():
+        return
+    compile_cmd = ["g++", "-std=c++17", "-O2", "-o", str(CPP_BIN), str(BASE_DIR / "main.cpp")]
+    try:
+        result = subprocess.run(compile_cmd, cwd=str(BASE_DIR), capture_output=True, text=True, timeout=120)
+        if result.returncode != 0:
+            error = (result.stderr or result.stdout).strip()
+            raise RuntimeError(f"Failed to compile backend: {error}")
+    except Exception as exc:
+        raise RuntimeError(f"Could not build backend binary: {exc}")
+
+
 def _run_cpp(action: str, *args: str):
     """Run the compiled C++ backend as a subprocess for the given action.
     The C++ binary reads/writes the same text files located in DATA_DIR.
@@ -617,4 +633,9 @@ def admin_toggle_bus_status(bus_id: str):
     cpp_payload, status = _run_cpp("admin-toggle-bus", bus_id)
     return jsonify(cpp_payload), status
 if __name__ == "__main__":
+    try:
+        ensure_backend_binary()
+    except RuntimeError as exc:
+        print(str(exc), flush=True)
+        raise
     app.run(host="127.0.0.1", port=5000, debug=True)
